@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Developer Portfolio</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        /* Custom font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple scroll-to-top button visibility */
+        .show-scroll {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .hide-scroll {
+            opacity: 0;
+            transform: translateY(2rem);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <!-- Vue App Container -->
+    <div id="app" class="antialiased">
+
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" :class="{ 'bg-gray-900/80 backdrop-blur-sm shadow-lg': scrolled, 'bg-transparent': !scrolled }">
+            <nav class="container mx-auto max-w-6xl px-6 py-4 flex justify-between items-center">
+                <!-- Logo/Name -->
+                <a href="#about" class="text-2xl font-bold text-white hover:text-cyan-400 transition-colors">
+                    {{ portfolio.name.split(' ')[0] }}
+                </a>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:flex space-x-6">
+                    <a v-for="link in navLinks" :key="link.name" :href="link.href" @click="scrollToSection($event, link.href)" class="text-gray-300 hover:text-cyan-400 font-medium transition-colors">
+                        {{ link.name }}
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-500">
+                    <svg v-if="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Mobile Menu (Fullscreen) -->
+        <div v-if="mobileMenuOpen" class="fixed inset-0 z-40 bg-gray-900 flex flex-col items-center justify-center space-y-8 md:hidden">
+            <a v-for="link in navLinks" :key="link.name" :href="link.href" @click="closeMobileMenu($event, link.href)" class="text-3xl font-medium text-gray-200 hover:text-cyan-400">
+                {{ link.name }}
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <main class="container mx-auto max-w-6xl px-6">
+            
+            <!-- Section 1: Hero -->
+            <section id="home" class="min-h-screen flex items-center pt-20">
+                <div class="flex flex-col-reverse lg:flex-row items-center justify-between w-full">
+                    <!-- Hero Text -->
+                    <div class="lg:w-3/5 text-center lg:text-left">
+                        <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-4">
+                            Hi, I'm <span class="text-cyan-400">{{ portfolio.name }}</span>
+                        </h1>
+                        <h2 class="text-2xl md:text-4xl font-semibold text-gray-300 mb-8">
+                            {{ portfolio.title }}
+                        </h2>
+                        <p class="text-lg text-gray-400 max-w-xl mx-auto lg:mx-0 mb-10">
+                            {{ portfolio.heroIntro }}
+                        </p>
+                        <div class="flex justify-center lg:justify-start space-x-4">
+                            <a :href="portfolio.contact.emailLink" class="px-8 py-3 bg-cyan-500 text-white font-medium rounded-lg shadow-lg hover:bg-cyan-600 transition-all duration-300 transform hover:-translate-y-0.5">
+                                Get In Touch
+                            </a>
+                            <a href="#projects" @click="scrollToSection($event, '#projects')" class="px-8 py-3 bg-gray-700 text-gray-200 font-medium rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300">
+                                View My Work
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Hero Image Placeholder -->
+                    <div class="lg:w-2/5 mb-10 lg:mb-0">
+                        <div class="w-64 h-64 md:w-96 md:h-96 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 p-2 shadow-2xl">
+                            <img :src="portfolio.heroImage" alt="Profile Picture" class="w-full h-full object-cover rounded-full" onerror="this.src='https://placehold.co/400x400/1F2937/E0F2FE?text=Me'; this.onerror=null;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: About Me -->
+            <section id="about" class="py-24">
+                <h2 class="text-4xl font-bold text-center mb-4 text-white">About Me</h2>
+                <div class="h-1 w-20 bg-cyan-500 mx-auto mb-12"></div>
+                
+                <div class="flex flex-col lg:flex-row items-center gap-12">
+                    <div class="lg:w-1/3">
+                        <img :src="portfolio.aboutImage" alt="About Me" class="rounded-lg shadow-xl w-full" onerror="this.src='https://placehold.co/600x400/2A374A/E0F2FE?text=About'; this.onerror=null;">
+                    </div>
+                    <div class="lg:w-2/3 text-lg text-gray-300 space-y-6">
+                        <p v-for="(paragraph, index) in portfolio.aboutMe" :key="index">
+                            {{ paragraph }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <h3 class="text-3xl font-semibold text-center mt-20 mb-10 text-white">My Tech Stack</h3>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <span v-for="skill in portfolio.skills" :key="skill" class="bg-gray-700 text-cyan-300 px-5 py-2 rounded-full font-medium shadow-md">
+                        {{ skill }}
+                    </span>
+                </div>
+            </section>
+
+            <!-- Section 3: Projects -->
+            <section id="projects" class="py-24">
+                <h2 class="text-4xl font-bold text-center mb-4 text-white">My Projects</h2>
+                <div class="h-1 w-20 bg-cyan-500 mx-auto mb-16"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div v-for="(project, index) in portfolio.projects" :key="index" class="bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-cyan-500/30">
+                        <img :src="project.imageUrl" class="w-full h-56 object-cover" :alt="project.title" onerror="this.src='https://placehold.co/600x400/1F2937/E0F2FE?text=' + encodeURIComponent(project.title); this.onerror=null;">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-semibold text-white mb-3">{{ project.title }}</h3>
+                            <p class="text-gray-400 mb-5">{{ project.description }}</p>
+                            <div class="flex space-x-4">
+                                <a :href="project.liveUrl" target="_blank" rel="noopener noreferrer" class="flex-1 text-center px-4 py-2 bg-cyan-500 text-white font-medium rounded-md hover:bg-cyan-600 transition-colors">
+                                    Live Demo
+                                </a>
+                                <a :href="project.repoUrl" target="_blank" rel="noopener noreferrer" class="flex-1 text-center px-4 py-2 bg-gray-600 text-gray-200 font-medium rounded-md hover:bg-gray-500 transition-colors">
+                                    GitHub
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Contact -->
+            <section id="contact" class="py-24">
+                <h2 class="text-4xl font-bold text-center mb-4 text-white">Get In Touch</h2>
+                <div class="h-1 w-20 bg-cyan-500 mx-auto mb-16"></div>
+
+                <div class="max-w-3xl mx-auto text-center">
+                    <p class="text-xl text-gray-300 mb-8">
+                        {{ portfolio.contact.intro }}
+                    </p>
+                    <a :href="portfolio.contact.emailLink" class="inline-block px-10 py-4 bg-cyan-500 text-white text-lg font-medium rounded-lg shadow-lg hover:bg-cyan-600 transition-all duration-300 transform hover:-translate-y-0.5">
+                        Say Hello
+                    </a>
+                    
+                    <!-- Social Links -->
+                    <div class="flex justify-center space-x-8 mt-12">
+                        <a v-for="social in portfolio.socials" :key="social.name" :href="social.url" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-cyan-400 transition-colors" :aria-label="social.name">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" v-html="social.iconPath"></svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-700 mt-20">
+            <div class="container mx-auto max-w-6xl px-6 py-8 text-center text-gray-500">
+                <p>&copy; {{ new Date().getFullYear() }} {{ portfolio.name }}. All rights reserved.</p>
+                <p class="text-sm mt-1">Designed & Built with Vue.js & Tailwind CSS</p>
+            </div>
+        </footer>
+
+        <!-- Scroll to Top Button -->
+        <button @click="scrollToTop"
+            :class="[scrolled ? 'show-scroll' : 'hide-scroll']"
+            class="fixed bottom-6 right-6 p-3 bg-cyan-500 text-white rounded-full shadow-lg hover:bg-cyan-600 transition-all duration-300 z-50">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+            </svg>
+        </button>
+
+    </div>
+
+    <!-- Vue.js Application Script -->
+    <script>
+        const { createApp, ref, onMounted, onUnmounted } = Vue
+
+        createApp({
+            setup() {
+                // --- Portfolio Data ---
+                const portfolio = ref({
+                    name: "Felix Victory",
+                    title: "Frontend Developer & UI/UX Enthusiast",
+                    heroIntro: "I build modern, responsive, and user-friendly web applications using Vue.js, React, and a passion for clean code.",
+                    heroImage: "https://placehold.co/400x400/0891B2/E0F2FE?text=Felix",
+                    aboutImage: "https://placehold.co/600x400/1F2937/E0F2FE?text=Desk+Setup",
+                    aboutMe: [
+                        "Hello! I'm Felix, a frontend developer based in City, State. I have a deep passion for creating beautiful, functional, and accessible digital experiences.",
+                        "With 3+ years of experience in the field, I've honed my skills in translating complex design mockups into pixel-perfect, high-performance web applications.",
+                        "When I'm not coding, you can find me exploring new JavaScript frameworks, contributing to open-source projects, or hiking in the nearby mountains."
+                    ],
+                    skills: [
+                        "Vue.js", "Vuex", "Pinia", "React", "Redux", "JavaScript (ES6+)", "TypeScript",
+                        "HTML5", "CSS3", "Sass/SCSS", "Tailwind CSS", "Node.js", "Jest", "Vitest", "Git"
+                    ],
+                    projects: [
+                        {
+                            title: "E-Commerce Dashboard",
+                            description: "A comprehensive admin dashboard for an e-commerce platform, built with Vue.js, Pinia, and Tailwind CSS. Features data visualization and order management.",
+                            imageUrl: "https://placehold.co/600x400/0E7490/E0F2FE?text=E-Commerce+Dash",
+                            liveUrl: "#",
+                            repoUrl: "#"
+                        },
+                        {
+                            title: "Real-Time Chat App",
+                            description: "A responsive chat application using Vue.js and Firebase. Features real-time messaging, user authentication, and online presence indicators.",
+                            imageUrl: "https://placehold.co/600x400/155E75/E0F2FE?text=Chat+App",
+                            liveUrl: "#",
+                            repoUrl: "#"
+                        },
+                        {
+                            title: "Portfolio Website V2",
+                            description: "My personal portfolio (the one you're on!) built to showcase my skills in Vue 3 and modern frontend design principles.",
+                            imageUrl: "https://placehold.co/600x400/164E63/E0F2FE?text=This+Portfolio",
+                            liveUrl: "#",
+                            repoUrl: "#"
+                        }
+                    ],
+                    contact: {
+                        intro: "I'm currently open to new opportunities and collaborations. Whether you have a question or just want to say hi, my inbox is always open!",
+                        emailLink: "mailto:victory4321okeoghene@gmail.com"
+                    },
+                    socials: [
+                        { name: "GitHub", url: "#", iconPath: "M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.488.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.951 0-1.093.39-1.988 1.03-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.84c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.546 1.378.202 2.398.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.858 0 1.34-.012 2.419-.012 2.746 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" },
+                        { name: "LinkedIn", url: "#", iconPath: "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-12.5 15.5h-2v-8h2v8zM6.5 8.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5S7.33 8.5 6.5 8.5zm11 7h-2v-4c0-.5-.34-.95-.74-1.15-.39-.2-.86-.2-1.26.05-.4.25-.6.75-.6 1.25v3.85h-2v-8h2v1.1c.3-.5 1.1-1.1 2.5-1.1 1.93 0 3.5 1.57 3.5 3.5v4.5z" },
+                        { name: "Twitter", url: "#", iconPath: "M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.49-1.75.85-2.72 1.04C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.27 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.48.75 2.79 1.9 3.55-.7-.02-1.36-.21-1.94-.53v.05c0 2.07 1.47 3.8 3.42 4.19-.36.1-.74.15-1.14.15-.27 0-.54-.03-.8-.08.54 1.7 2.1 2.94 3.96 2.97-1.46 1.14-3.3 1.82-5.3 1.82-.34 0-.68-.02-1.01-.06 1.89 1.21 4.13 1.92 6.56 1.92 7.88 0 12.19-6.53 12.19-12.19 0-.18-.004-.37-.01-.55.84-.6 1.56-1.36 2.14-2.22z" }
+                    ]
+                });
+
+                // --- Navigation ---
+                const navLinks = ref([
+                    { name: "Home", href: "#home" },
+                    { name: "About", href: "#about" },
+                    { name: "Projects", href: "#projects" },
+                    { name: "Contact", href: "#contact" },
+                ]);
+
+                const mobileMenuOpen = ref(false);
+
+                // --- Page Scroll State ---
+                const scrolled = ref(false);
+
+                const handleScroll = () => {
+                    scrolled.value = window.scrollY > 50;
+                };
+
+                const scrollToTop = () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+
+                const scrollToSection = (event, href) => {
+                    event.preventDefault();
+                    const element = document.querySelector(href);
+                    if (element) {
+                        const yOffset = -80; // Offset for fixed header
+                        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
+                    }
+                };
+                
+                const closeMobileMenu = (event, href) => {
+                    mobileMenuOpen.value = false;
+                    scrollToSection(event, href);
+                };
+
+                onMounted(() => {
+                    window.addEventListener('scroll', handleScroll);
+                });
+
+                onUnmounted(() => {
+                    window.removeEventListener('scroll', handleScroll);
+                });
+
+                // --- Expose to Template ---
+                return {
+                    portfolio,
+                    navLinks,
+                    mobileMenuOpen,
+                    scrolled,
+                    scrollToTop,
+                    scrollToSection,
+                    closeMobileMenu
+                };
+            }
+        }).mount('#app');
+    </script>
+
+</body>
+</html>
